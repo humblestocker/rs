@@ -4,41 +4,60 @@ on:
   schedule:
     - cron: "45 6 * * 1-5"
   workflow_dispatch: {}
-  
+
 jobs:
   build:
-
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
       with:
         persist-credentials: false
         fetch-depth: 0
+
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         python -m pip install -r requirements.txt
+
+    - name: Create daily folder
+      run: |
+        mkdir -p docs/_posts/$(date +'%Y-%m-%d')
+
     - name: Run KOSPI script
       run: |
-        ./calc-kospi-rs.py
+        python calc-kospi-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-rs.markdown
+
     - name: Run KOSDAQ script
       run: |
-        ./calc-kosdaq-rs.py
+        python calc-kosdaq-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kosdaq-rs.markdown
+
     - name: Run KRX script
       run: |
-        ./calc-krx-rs.py
-    - name: Commits
+        python calc-krx-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-krx-rs.markdown
+
+    - name: Run KOSPI Trend Template script
+      run: |
+        python calc-kospi-trend-template.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-trend-template.markdown
+
+    - name: Commit changes
       run: |
         git config --local user.email "dalinaum@gmail.com"
         git config --local user.name "Dalinaum"
-        git add .
-        git commit -m "[AUTO] Daily KOSPI RS rating"
+        git add docs/_posts/*
+        git commit -m "[AUTO] Daily RS rating and trend templates"
+
     - name: Push
       uses: ad-m/github-push-action@master
       with:
         branch: 'main'
         github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Delete old data folders
+      run: |
+        find docs/_posts/* -type d -mtime +30 -exec rm -rf {} +
+
