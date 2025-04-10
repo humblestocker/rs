@@ -28,27 +28,27 @@ jobs:
 
     - name: Create daily folder
       run: |
-        mkdir -p docs/_posts/$(date +'%Y-%m-%d')
+        mkdir -p docs/_post/$(date +'%Y-%m-%d')
 
     - name: Run KOSPI RS script
       run: |
-        python calc-kospi-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-rs.markdown
+        python calc-kospi-rs.py > docs/_post/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-rs.markdown
 
     - name: Run KOSDAQ RS script
       run: |
-        python calc-kosdaq-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kosdaq-rs.markdown
+        python calc-kosdaq-rs.py > docs/_post/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kosdaq-rs.markdown
 
     - name: Run KRX RS script
       run: |
-        python calc-krx-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-krx-rs.markdown
+        python calc-krx-rs.py > docs/_post/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-krx-rs.markdown
 
     - name: Run KOSPI Trend Template
       run: |
-        python calc-kospi-trend-template.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-trend-template.markdown
+        python calc-kospi-trend-template.py > docs/_post/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-trend-template.markdown
 
     - name: Delete old data folders
       run: |
-        find docs/_posts/* -maxdepth 0 -type d -mtime +30 -exec rm -rf {} +
+        find docs/_post/* -maxdepth 0 -type d -mtime +30 -exec rm -rf {} +
 
     - name: Configure Git
       run: |
