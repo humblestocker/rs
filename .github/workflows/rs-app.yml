@@ -2,19 +2,21 @@ name: Scrap KOSPI stock data and calculate RS rating all.
 
 on:
   schedule:
-    - cron: "45 6 * * 1-5"
-  workflow_dispatch: {}
+    - cron: "45 6 * * 1-5"  # 매주 월~금 UTC 6:45 → KST 오후 3:45
+  workflow_dispatch: {}     # 수동 실행도 가능하게 허용
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
       with:
         persist-credentials: false
         fetch-depth: 0
 
-    - name: Set up Python 3.10
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.10'
@@ -28,36 +30,41 @@ jobs:
       run: |
         mkdir -p docs/_posts/$(date +'%Y-%m-%d')
 
-    - name: Run KOSPI script
+    - name: Run KOSPI RS script
       run: |
         python calc-kospi-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-rs.markdown
 
-    - name: Run KOSDAQ script
+    - name: Run KOSDAQ RS script
       run: |
         python calc-kosdaq-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kosdaq-rs.markdown
 
-    - name: Run KRX script
+    - name: Run KRX RS script
       run: |
         python calc-krx-rs.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-krx-rs.markdown
 
-    - name: Run KOSPI Trend Template script
+    - name: Run KOSPI Trend Template
       run: |
         python calc-kospi-trend-template.py > docs/_posts/$(date +'%Y-%m-%d')/$(date +'%Y-%m-%d')-kospi-trend-template.markdown
 
-    - name: Commit changes
+    - name: Delete old data folders
+      run: |
+        find docs/_posts/* -maxdepth 0 -type d -mtime +30 -exec rm -rf {} +
+
+    - name: Configure Git
       run: |
         git config --local user.email "dalinaum@gmail.com"
         git config --local user.name "Dalinaum"
-        git add docs/_posts/*
-        git commit -m "[AUTO] Daily RS rating and trend templates"
 
-    - name: Push
+    - name: Commit changes
+      run: |
+        git add docs/_posts/*
+        git commit -m "[AUTO] Daily RS rating and trend templates" || echo "Nothing to commit"
+
+    - name: Pull before push to avoid non-fast-forward error
+      run: git pull --rebase origin main
+
+    - name: Push to GitHub
       uses: ad-m/github-push-action@master
       with:
         branch: 'main'
         github_token: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Delete old data folders
-      run: |
-        find docs/_posts/* -type d -mtime +30 -exec rm -rf {} +
-
