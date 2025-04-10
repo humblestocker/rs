@@ -1,7 +1,7 @@
 ---
 layout: single
 title: "KRX 미너비니 트렌드 템플릿 2025년 4월 10일"
-date: 2025-04-10 08:17:09 +0900
+date: 2025-04-10 17:00:27 +0900
 categories: minervini
 ---
 마크 미니버니(Mark Minervini)의 트렌드 템플릿(Trend Template)을 계산하여 만족한 결과만 나열하였습니다. 필터링에 걸린 종목은 아래에 나열되어 있지 않습니다.
