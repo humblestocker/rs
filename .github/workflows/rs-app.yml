@@ -57,7 +57,7 @@ jobs:
 
     - name: Commit changes
       run: |
-        git add docs/_posts/*
+        git add docs/_post/*
         git commit -m "[AUTO] Daily RS rating and trend templates" || echo "Nothing to commit"
 
     - name: Pull before push to avoid non-fast-forward error
